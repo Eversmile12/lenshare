@@ -1,0 +1,38 @@
+.popup_container{
+    width: 300px;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info_container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap:0
+}
+
+.profile_picture_container{
+    object-fit: cover;
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    margin-bottom: .5rem;
+
+}
+
+
+.profile_picture{
+    border-radius: 100%;
+    width: 80px;
+    height: 80px;
+}
+
+.following_container{
+    display: flex;
+    width: 60%;
+    justify-content: space-evenly;
+    margin-bottom: 2rem
+}
