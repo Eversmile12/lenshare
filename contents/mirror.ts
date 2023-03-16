@@ -18,7 +18,6 @@ window.addEventListener("load", () => {
 })
 
 const getTweetText = async () => {
-  console.log("calling background")
   const { url } = await sendToBackgroundViaRelay({
     name: "getCurrentTab"
   })

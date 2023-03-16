@@ -11,8 +11,6 @@ export const relayer =  relay(
     name: "getChallenge" as const
   },
   async (req) => {
-    console.log(req)
     return await sendToBackground(req)
-    
   }
 )

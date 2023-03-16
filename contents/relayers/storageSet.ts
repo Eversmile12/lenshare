@@ -11,7 +11,6 @@ export default relay(
     name: "storageSet" as const
   },
   async (req) => {
-    console.log(req)
     const result = await sendToBackground(req)
     return result
   }

@@ -13,7 +13,6 @@ const CustomButton = () => {
   useEffect(() => {
     window.web3.currentProvider.on("accountsChanged", (accounts) => {
       const walletHandler = new WalletHandler()
-      console.log(accounts)
       walletHandler.logout()
     })
   })

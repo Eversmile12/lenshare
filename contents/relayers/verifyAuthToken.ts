@@ -11,7 +11,6 @@ export const relayer =  relay(
     name: "verifyAuthToken" as const
   },
   async (req) => {
-    console.log(req)
     return await sendToBackground(req)
   }
 )

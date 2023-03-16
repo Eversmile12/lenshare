@@ -11,6 +11,7 @@ interface MmMetadata {
 	"storageGet" : {}
 	"storageSet" : {}
 	"verifyAuthToken" : {}
+	"wantsLogin" : {}
 }
 
 interface MpMetadata {

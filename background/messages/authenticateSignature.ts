@@ -11,7 +11,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
   req: ChallengeAuthRequestProps,
   res
 ) => {
-  console.log(req)
   const response = await apolloClient.mutate({
     mutation: gql(AUTHENTICATE_USER),
     variables: {
@@ -21,7 +20,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
       }
     }
   })
-  console.log(response)
   res.send({
     accessToken: response.data.authenticate.accessToken,
     refreshToken: response.data.authenticate.refreshToken

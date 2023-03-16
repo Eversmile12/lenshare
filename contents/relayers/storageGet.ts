@@ -13,7 +13,6 @@ export const relayer =  relay(
   async (req) => {
     console.log(req)
     const result = await sendToBackground(req)
-    return result
-    
+    return result 
   }
 )

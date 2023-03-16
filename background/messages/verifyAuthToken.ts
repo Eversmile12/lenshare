@@ -12,7 +12,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
   req: ChallengeAuthRequestProps,
   res
 ) => {
-  console.log(req)
   const response = await apolloClient.query({
     query: gql(VERIFY_TOKEN),
     variables: {
@@ -21,7 +20,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
       }
     }
   })
-  console.log(response)
   res.send({
     verify: response.data.verify
   })

@@ -29,35 +29,7 @@
     "scripting",
     "tabs"
   ],
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "../contents/getCurrentTab.ts"
-      ]
-    },
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "static/contents/authenticateSignature.tsx"
-      ]
-    }
-  ],
   "host_permissions": [
     "https://*/*"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "@zlib"
-      ],
-      "matches": [
-        "https://twitter.com/*"
-      ]
-    }
   ]
 }

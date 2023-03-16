@@ -7,7 +7,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
   req: ChallengeRequestProps,
   res
 ) => {
-  console.log(req)
   await storage.store(req.body.id, req.body.data)
 
   res.send({

@@ -11,7 +11,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
   req: ChallengeRequestProps,
   res
 ) => {
-  console.log(req)
   const response = await apolloClient.query({
     query: gql(CHALLENGE_REQUEST),
     variables: {

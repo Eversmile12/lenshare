@@ -10,6 +10,7 @@ import { default as messagesRefreshTokens } from "~background/messages/refreshTo
 import { default as messagesStorageGet } from "~background/messages/storageGet"
 import { default as messagesStorageSet } from "~background/messages/storageSet"
 import { default as messagesVerifyAuthToken } from "~background/messages/verifyAuthToken"
+import { default as messagesWantsLogin } from "~background/messages/wantsLogin"
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.name) {
@@ -79,6 +80,14 @@ case "storageSet":
   break
 case "verifyAuthToken":
   messagesVerifyAuthToken({
+    sender,
+    ...request
+  }, {
+    send: (p) => sendResponse(p)
+  })
+  break
+case "wantsLogin":
+  messagesWantsLogin({
     sender,
     ...request
   }, {

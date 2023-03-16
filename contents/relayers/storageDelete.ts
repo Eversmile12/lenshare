@@ -11,9 +11,8 @@ export const relayer = relay(
     name: "storageDelete" as const
   },
   async (req) => {
-    console.log(req)
     const result = await sendToBackground(req)
     return result
-    
   }
 )
+

@@ -10,11 +10,9 @@ export default relay(
   {
     name: "getTweet" as const
   },
-
   async (req) => {
     console.log(req)
     const result = await sendToBackground(req)
     return result
-    
   }
 )

@@ -9,7 +9,6 @@ import { apolloClient } from "../../apolloclient"
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
   const address = await storage.retrieve("address")
-  console.log(address)
   const token = await storage.retrieve("accessToken")
   if (!address)
     res.send({
@@ -25,13 +24,12 @@ const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
         ownedBy: address
       }
     },
-    context: {
-      headers: {
-        "x-access-token": `Bearer ${token}`
-      }
-    }
+    // context: {
+    //   headers: {
+    //     "x-access-token": `Bearer ${token}`
+    //   }
+    // }
   })
-  console.log(response)
   res.send({
     profiles: response.data.profiles.items
   })

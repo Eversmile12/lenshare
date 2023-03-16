@@ -11,7 +11,6 @@ export const relayer = relay(
     name: "getUserProfiles" as const
   },
   async (req) => {
-    console.log(req)
     return await sendToBackground(req)
     
   }

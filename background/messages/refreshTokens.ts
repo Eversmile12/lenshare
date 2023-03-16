@@ -10,7 +10,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
   req,
   res
 ) => {
-  console.log(req)
   const response = await apolloClient.mutate({
     mutation: gql(REFRESH_TOKENS),
     variables: {
@@ -19,7 +18,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
       }
     }
   })
-  console.log(response)
   res.send({
     newAccessToken: response.data.refresh.accessToken,
     newRefreshToken: response.data.refresh.refreshToken
