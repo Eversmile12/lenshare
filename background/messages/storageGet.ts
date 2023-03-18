@@ -9,7 +9,6 @@ const handler: PlasmoMessaging.MessageHandler = async (
   res
 ) => {
   const object = await storage.retrieve(req.body.id)
-  
   res.send({
     response: object
   })

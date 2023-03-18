@@ -2,6 +2,7 @@ import { TypedDataDomain, ethers, providers } from "ethers";
 import { omitDeep } from "omit-deep";
 
 import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
+import { omit } from "~utils/helpers";
 
 export class WalletHandler {
   private walletProvider;
@@ -9,6 +10,10 @@ export class WalletHandler {
 
   constructor() {
     this.walletProvider = window.web3.currentProvider;
+    this.provider = new ethers.providers.Web3Provider(
+      this.walletProvider,
+      "any"
+    );
   }
 
   public getWindowProvider = () => {
@@ -33,22 +38,19 @@ export class WalletHandler {
   };
 
   async login() {
-    this.provider = new ethers.providers.Web3Provider(
-      this.walletProvider,
-      "any"
-    );
-    const isConnected = await this.isConnectedOrCanBeRefreshed();
-    if (isConnected) return;
-    console.log("user not connected", isConnected);
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "wantsLogin",
+        data: false,
+      },
+    });
 
+    const isConnected = await this.isConnectedOrCanBeRefreshed();
+    console.log("user is connected", isConnected)
+    if (isConnected) return;
+    
     try {
-      await sendToBackgroundViaRelay({
-        name: "storageSet",
-        body: {
-          id: "wantsLogig",
-          data: false,
-        },
-      });
       await this.provider.send("eth_requestAccounts", []);
       const address = await this.setAddress();
 
@@ -56,8 +58,9 @@ export class WalletHandler {
         name: "getUserProfiles",
       });
       // add no profiles messaging
+      console.log("address logged in", address)
       if (!profiles.length) return;
-
+      console.log("getting challenge")
       const { challenge } = await sendToBackgroundViaRelay({
         name: "getChallenge",
         body: {
@@ -84,6 +87,13 @@ export class WalletHandler {
         body: {
           id: "isLogin",
           data: true,
+        },
+      });
+      await sendToBackgroundViaRelay({
+        name: "storageSet",
+        body: {
+          id: "userId",
+          data: profiles[0].id,
         },
       });
     } catch (e) {
@@ -164,24 +174,22 @@ export class WalletHandler {
     try {
       const signature = signer.signMessage(ethers.utils.toUtf8Bytes(challenge));
       return signature;
-    } catch (e) {
-    }
+    } catch (e) {}
 
     return;
   };
 
-  signedTypeData = async (
+  signTypeData = async (
     domain: TypedDataDomain,
     types: Record<string, any>,
-    value: Record<string, any>,
-    provider
+    value: Record<string, any>
   ) => {
     const signer = await this.getSigner();
     // remove the __typedname from the signature!
     return signer._signTypedData(
-      omitDeep(domain, "__typename"),
-      omitDeep(types, "__typename"),
-      omitDeep(value, "__typename")
+      omit(domain, "__typename"),
+      omit(types, "__typename"),
+      omit(value, "__typename")
     );
   };
 

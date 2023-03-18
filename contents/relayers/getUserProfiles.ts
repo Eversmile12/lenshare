@@ -9,7 +9,7 @@ export const config: PlasmoCSConfig = {
 export const relayer = relay(
   {
     name: "getUserProfiles" as const
-  },
+  }, 
   async (req) => {
     return await sendToBackground(req)
     

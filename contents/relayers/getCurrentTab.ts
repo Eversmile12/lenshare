@@ -9,6 +9,5 @@ export const config: PlasmoCSConfig = {
 export const relayer =  relayMessage(
   {
     name: "getCurrentTab" as const
-    
   }
 )

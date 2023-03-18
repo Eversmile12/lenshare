@@ -35,8 +35,9 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
-build/*
-
+build/
+.DS_Store
+plasmo/
 # Dependency directories
 node_modules/
 jspm_packages/

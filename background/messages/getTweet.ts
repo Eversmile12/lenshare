@@ -9,7 +9,6 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
 
   const tweet =await twitter.getTweet(id)
   console.log(tweet)
-  
   res.send({
     tweet: tweet
   })

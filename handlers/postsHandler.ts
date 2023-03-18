@@ -1,58 +1,52 @@
-import { gql } from "@apollo/client"
+import { gql } from "@apollo/client";
+import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
+import { BigNumber, ethers } from "ethers";
 
-import { apolloClient } from "~apolloclient"
-import {
-  getAddressFromSigner,
-  getProvider,
-  getSigner,
-  getWindowProvider,
-  splitSignature
-} from "~handlers/walletHandler"
-
-import { signedTypeData } from "./walletHandler"
+import { apolloClient } from "~apolloclient";
+import { CREATE_POST_TYPED_DATA } from "~graphql/createPostTypedData";
+import { storage } from "./storageHandler";
 
 export const createPostTypedData = async (request) => {
+  const accessToken = await sendToBackgroundViaRelay({
+    name: "storageGet",
+    body: {
+      id: "accessToken",
+    },
+  }).then((data) => data.response);
+  console.log(accessToken);
   const result = await apolloClient.mutate({
-    mutation: gql``,
+    mutation: gql`
+      ${CREATE_POST_TYPED_DATA}
+    `,
     variables: {
-      request
-    }
-  })
+      request,
+    },
+    context: {
+      headers: {
+        "x-access-token": `Bearer ${accessToken}`,
+      },
+    },
+  });
 
-  return result.data!.createPostTypedData
-}
+  return result.data!.createPostTypedData;
+};
 
-export const signCreatePostTypedData = async (request: any, provider) => {
-  const result = await createPostTypedData(request)
-  console.log("create post: createPostTypedData", result)
+export const createPost = async (fileHash, profileId) => {
+  if (!profileId) console.log("error: no profile id");
+  const postRequest = createPostRequest(fileHash, profileId);
+  const postTypedData = await createPostTypedData(postRequest);
+  console.log("create post: createPostRequest", postRequest);
+  console.log("create post: createPostTypedData", postTypedData);
+  // send to bg
 
-  const typedData = result.typedData
-  console.log("create post: typedData", typedData)
-  const signature = await signedTypeData(
-    typedData.domain,
-    typedData.types,
-    typedData.value,
-    provider
-  )
-  console.log("create post: signature", signature)
+  await storage.store("postData", postTypedData);
+  await storage.store("needPostSignature", true);
+};
 
-  return { result, signature }
-}
-
-export const post = async (request: any) => {
-  const result = await createPostTypedData(request)
-  console.log("create post: createPostTypedData", result)
-
-  const windowProvider = getWindowProvider()
-  const provider = getProvider(windowProvider)
-  const signer = getSigner(provider)
-  const address = getAddressFromSigner(signer)
-
-  // upload on ipfs
-
+const createPostRequest = (contentHash: string, profileId: string) => {
   const createPostRequest = {
-    profileId: "",
-    contentURI: `ipfs://`,
+    profileId,
+    contentURI: `ipfs://${contentHash}`,
     collectModule: {
       // feeCollectModule: {
       //   amount: {
@@ -65,7 +59,7 @@ export const post = async (request: any) => {
       //   referralFee: 10.5,
       // },
       // revertCollectModule: true,
-      freeCollectModule: { followerOnly: true }
+      freeCollectModule: { followerOnly: true },
       // limitedFeeCollectModule: {
       //   amount: {
       //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
@@ -120,34 +114,9 @@ export const post = async (request: any) => {
       // },
     },
     referenceModule: {
-      followerOnlyReferenceModule: false
-    }
-  }
-  const signedResult = await signCreatePostTypedData(
-    createPostRequest,
-    provider
-  )
-  console.log(`: signedResult`, signedResult)
+      followerOnlyReferenceModule: false,
+    },
+  };
 
-  const typedData = signedResult.result.typedData
-
-  const { v, r, s } = splitSignature(signedResult.signature)
-
-  const tx = await lensHub.postWithSig({
-    profileId: typedData.value.profileId,
-    contentURI: typedData.value.contentURI,
-    collectModule: typedData.value.collectModule,
-    collectModuleInitData: typedData.value.collectModuleInitData,
-    referenceModule: typedData.value.referenceModule,
-    referenceModuleInitData: typedData.value.referenceModuleInitData,
-    sig: {
-      v,
-      r,
-      s,
-      deadline: typedData.value.deadline
-    }
-  })
-  console.log(`${prefix}: tx hash`, tx.hash)
-
-  await pollAndIndexPost(tx.hash, profileId, prefix)
-}
+  return createPostRequest;
+};

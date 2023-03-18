@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
+import { useStorage } from "@plasmohq/storage/hook";
 
-import {
-  sendToBackground,
-  sendToBackgroundViaRelay,
-} from "@plasmohq/messaging";
+import { sendToBackground } from "@plasmohq/messaging";
 
 import { storage } from "~handlers/storageHandler";
 import { WalletHandler } from "~handlers/walletHandler";
@@ -13,10 +11,17 @@ import * as style from "./styles/popup.module.css";
 import "~style.css";
 
 function IndexPopup() {
+  const [isPopup] = useStorage<boolean>("isPopup");
+  
+  return <>{isPopup ? <PopupWindow /> : <ExtensionWindow />}</>;
+}
+export const PopupWindow = () => {
+  return(<div><h1>Let's go popups!</h1></div>);
+};
+export const ExtensionWindow = () => {
   const [currentProfile, setCurrentProfile] = useState<any>();
   const [profileImage, setProfileImage] = useState<string>();
   const [isLogin, setIsLogin] = useState<boolean>(false);
-
   const getIpfsGatedURL = (ipfsURL: string): string => {
     const ipfsId = ipfsURL.split("//")[1];
     return `https://ipfs.filebase.io/ipfs/${ipfsId}`;
@@ -32,8 +37,7 @@ function IndexPopup() {
     });
     console.log(profiles);
     setCurrentProfile(profiles[0]);
-    await storage.store("profile_id", profiles[0].id);
-    console.log(profiles[0].id);
+
     setProfileImage(getIpfsGatedURL(profiles[0].picture.original.url));
   };
 
@@ -43,35 +47,11 @@ function IndexPopup() {
   };
 
   const logout = async () => {
-    await sendToBackground({
-      name: "storageSet",
-      body: {
-        id: "accessToken",
-        data: null,
-      },
-    });
-    await sendToBackground({
-      name: "storageSet",
-      body: {
-        id: "refreshToken",
-        data: null,
-      },
-    });
-    await sendToBackground({
-      name: "storageSet",
-      body: {
-        id: "address",
-        data: null,
-      },
-    });
-    await sendToBackground({
-      name: "storageSet",
-      body: {
-        id: "isLogin",
-        data: false,
-      },
-    });
-    console.log("logged out");
+    await storage.store("accessToken", null);
+    await storage.store("refreshToken", null);
+    await storage.store("address", null);
+    await storage.store("isLogin", false);
+    await storage.store("wantsLogin", false);
   };
 
   useEffect(() => {
@@ -80,7 +60,6 @@ function IndexPopup() {
       getIsLogin();
     }
   }, []);
-
   return (
     <div className={style.popup_container}>
       {currentProfile && isLogin ? (
@@ -130,6 +109,5 @@ function IndexPopup() {
       )}
     </div>
   );
-}
-
+};
 export default IndexPopup;

@@ -9,9 +9,8 @@ export const config: PlasmoCSConfig = {
 export const relayer =  relay(
   {
     name: "storageGet" as const
-  },
+  }, 
   async (req) => {
-    console.log(req)
     const result = await sendToBackground(req)
     return result 
   }

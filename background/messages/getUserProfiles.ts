@@ -24,11 +24,7 @@ const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
         ownedBy: address
       }
     },
-    // context: {
-    //   headers: {
-    //     "x-access-token": `Bearer ${token}`
-    //   }
-    // }
+   
   })
   res.send({
     profiles: response.data.profiles.items

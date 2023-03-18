@@ -9,7 +9,7 @@ export const config: PlasmoCSConfig = {
 export const relayer =  relay(
   {
     name: "refreshTokens" as const
-  },
+  }, 
   async (req) => {
     return await sendToBackground(req)
   }

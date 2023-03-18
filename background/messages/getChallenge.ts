@@ -1,9 +1,6 @@
 import { gql } from "@apollo/client"
-
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-
 import type { ChallengeRequestProps } from "~types/ChallengeRequestProps.types"
-
 import { apolloClient } from "../../apolloclient"
 import { CHALLENGE_REQUEST } from "../../graphql/challengeRequest.query"
 

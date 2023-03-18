@@ -9,7 +9,7 @@ export const config: PlasmoCSConfig = {
 export const relayer = relay(
   {
     name: "storageDelete" as const
-  },
+  }, 
   async (req) => {
     const result = await sendToBackground(req)
     return result

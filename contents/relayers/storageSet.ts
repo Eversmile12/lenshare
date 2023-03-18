@@ -9,7 +9,7 @@ export const config: PlasmoCSConfig = {
 export default relay(
   {
     name: "storageSet" as const
-  },
+  }, 
   async (req) => {
     const result = await sendToBackground(req)
     return result

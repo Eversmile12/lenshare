@@ -15,12 +15,10 @@ export class TwitterHandler {
     const appClient = await this.client.appLogin();
     this.client = appClient;
   }
-
   getTweet = async (id: string) => {
     const tweet = await this.client.v2.singleTweet(id, {
-      expansions: ["attachments.media_keys"],
       "media.fields": ["url"],
-    });
-    console.log(tweet);
+    }).then(tweet => tweet.data);
+    return tweet
   };
 }
