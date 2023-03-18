@@ -7,6 +7,6 @@ export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
 };
 export const relayer = relayMessage({
+
   name: "flushUnnecessaryStorage" as const,
 });
-

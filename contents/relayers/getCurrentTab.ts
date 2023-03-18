@@ -6,7 +6,7 @@ import { relay } from "@plasmohq/messaging/relay"
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
-export const relayer =  relayMessage(
+export const relayer = relayMessage(
   {
     name: "getCurrentTab" as const
   }

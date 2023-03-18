@@ -81,8 +81,8 @@ const uploadTweetOnIpfs = async (tweet) => {
   };
 
   const file = await fleekStorage.upload({
-    apiKey: "wU5aoihwMLRu3qwCpmJdLQ==",
-    apiSecret: "q0Gn26Vq0bjD1MLP4G+4irvWlFlm7fK7xU5kRP/M8GE=",
+    apiKey: `${process.env.PLASMO_PUBLIC_FLEEK_API_KEY}`,
+    apiSecret: `${process.env.PLASMO_PUBLIC_FLEEK_API_SECRET}`,
     key: profileId.concat("-", metadataId),
     data: JSON.stringify(metadata),
     httpUploadProgressCallback: (event) => {
@@ -114,7 +114,6 @@ const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
           },
         });
         await storage.store("isPopup", false);
-
 
         // const { hash, profileId } = await uploadTweetOnIpfs(tweet);
 
