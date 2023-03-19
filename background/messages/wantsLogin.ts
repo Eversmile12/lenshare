@@ -2,7 +2,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { storage } from "~handlers/storageHandler"
 
-import { TwitterHandler } from "~twitter/twitterHandler"
+import { TwitterHandler } from "~handlers/twitterHandler"
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
   const wantsLogin = await storage.retrieve("wantsLogin")

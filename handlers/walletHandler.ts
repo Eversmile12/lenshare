@@ -1,8 +1,7 @@
-import { TypedDataDomain, ethers, providers } from "ethers";
-import { omitDeep } from "omit-deep";
-
+import { TypedDataDomain, ethers } from "ethers";
 import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
 import { omit } from "~utils/helpers";
+import { LensHandler } from "~utils/lensHub";
 
 export class WalletHandler {
   private walletProvider;
@@ -45,11 +44,11 @@ export class WalletHandler {
         data: false,
       },
     });
-
-    const isConnected = await this.isConnectedOrCanBeRefreshed();
-    console.log("user is connected", isConnected)
+    const { isConnected } = await sendToBackgroundViaRelay({
+      name: "verifyOrRefreshTokens",
+    });
+    console.log("user is connected", isConnected);
     if (isConnected) return;
-    
     try {
       await this.provider.send("eth_requestAccounts", []);
       const address = await this.setAddress();
@@ -58,9 +57,9 @@ export class WalletHandler {
         name: "getUserProfiles",
       });
       // add no profiles messaging
-      console.log("address logged in", address)
+      console.log("address logged in", address);
       if (!profiles.length) return;
-      console.log("getting challenge")
+      console.log("getting challenge");
       const { challenge } = await sendToBackgroundViaRelay({
         name: "getChallenge",
         body: {
@@ -197,58 +196,32 @@ export class WalletHandler {
     return ethers.utils.splitSignature(signature);
   };
 
-  private isConnectedOrCanBeRefreshed = async () => {
-    console.log("check if is connected");
-
-    const accessToken = await sendToBackgroundViaRelay({
-      name: "storageGet",
-      body: {
-        id: "accessToken",
-      },
-    }).then((data) => data.response);
-
-    const refreshToken = await sendToBackgroundViaRelay({
-      name: "storageGet",
-      body: {
-        id: "refreshToken",
-      },
-    }).then((data) => data.response);
-    console.log("ACCESS_TOKEN", accessToken);
-
-    console.log("REFRESH_TOKEN", refreshToken);
-
-    if (!accessToken?.length && !refreshToken?.length) return false;
-
-    const { verify } = await sendToBackgroundViaRelay({
-      name: "verifyAuthToken",
-      body: {
-        accessToken: accessToken,
-      },
-    });
-
-    if (verify) return true;
-    console.log("REFRESHING_TOKENS", accessToken);
-
-    const { newAccessToken, newRefreshToken } = await this.refreshTokens(
-      refreshToken
+  signPostData = async (postData) => {
+    const signature = await this.signTypeData(
+      postData.typedData.domain,
+      postData.typedData.types,
+      postData.typedData.value
     );
 
-    console.log("ACCESS_TOKEN", newAccessToken);
-    console.log("REFRESH_TOKEN", newRefreshToken);
+    const { v, r, s } = this.splitSignature(signature);
+    const lensHandler = new LensHandler();
+    const lensHub = await lensHandler.initializeSmartContract();
 
-    if (!accessToken.length && !refreshToken.length) return false;
-
-    this.storeTokens(newAccessToken, newRefreshToken);
-    return true;
-  };
-
-  private refreshTokens = async (refreshToken) => {
-    const { newAccessToken, newRefreshToken } = await sendToBackgroundViaRelay({
-      name: "refreshTokens",
-      body: {
-        refreshToken: refreshToken,
+    const tx = await lensHub.postWithSig({
+      profileId: postData.typedData.value.profileId,
+      contentURI: postData.typedData.value.contentURI,
+      collectModule: postData.typedData.value.collectModule,
+      collectModuleInitData: postData.typedData.value.collectModuleInitData,
+      referenceModule: postData.typedData.value.referenceModule,
+      referenceModuleInitData: postData.typedData.value.referenceModuleInitData,
+      sig: {
+        v,
+        r,
+        s,
+        deadline: postData.typedData.value.deadline,
       },
     });
-    return { newAccessToken, newRefreshToken };
+
+    return tx;
   };
 }

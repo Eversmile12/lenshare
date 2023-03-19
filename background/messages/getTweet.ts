@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-import { TwitterHandler } from "~twitter/twitterHandler";
+import { TwitterHandler } from "~handlers/twitterHandler";
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   const { id } = req.body;

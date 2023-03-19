@@ -1,34 +1,45 @@
-import { gql } from "@apollo/client"
-
-import type { PlasmoMessaging } from "@plasmohq/messaging"
-
-import {  USER_PROFILES } from "~graphql/getDefaultProfile.query"
-import { storage } from "~handlers/storageHandler"
-
-import { apolloClient } from "../../apolloclient"
+import type { PlasmoMessaging } from "@plasmohq/messaging";
+import type {
+  ProfilesQuery,
+  ProfilesQueryVariables,
+} from "~.graphql/generated";
+import { storage } from "~handlers/storageHandler";
+import { lensClient } from "../../lensClient";
+import * as PROFILES_QUERY from "../../graphql/GetDefaultProfile.gql";
+import { gql } from "@apollo/client";
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
-  const address = await storage.retrieve("address")
-  const token = await storage.retrieve("accessToken")
-  if (!address)
+  const address = await storage.retrieve("address");
+
+  if (!address) {
     res.send({
       message: "No profiles found for the given address",
-      success: false
-    })
+      success: false,
+    });
+  }
 
+  console.log("fetching profiles");
 
-  const response = await apolloClient.query({
-    query: gql(USER_PROFILES),
+  const query = PROFILES_QUERY;
+  
+  const response = await lensClient.query<
+    ProfilesQuery,
+    ProfilesQueryVariables
+  >({
+    query: gql`
+      ${query}
+    `,
     variables: {
       request: {
-        ownedBy: address
-      }
+        ownedBy: [address],
+      },
     },
-   
-  })
-  res.send({
-    profiles: response.data.profiles.items
-  })
-}
+  });
 
-export default handler
+  console.log(response);
+  res.send({
+    profiles: response.data.profiles.items,
+  });
+};
+
+export default handler;

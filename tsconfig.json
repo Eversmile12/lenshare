@@ -1,7 +1,7 @@
 {
   "extends": "plasmo/templates/tsconfig.base",
   "exclude": ["node_modules"],
-  "include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx", "tabs/test.tsx"],
+  "include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx", "tabs/window.tsx", "graphql/challengeRequest.tsx"],
   "compilerOptions": {
     "paths": {
       "~*": ["./*"]

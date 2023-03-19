@@ -1,0 +1,19 @@
+query HasTxHashBeenIndexed($request: HasTxHashBeenIndexedRequest!) {
+  hasTxHashBeenIndexed(request: $request) {
+    ... on TransactionIndexedResult {
+      metadataStatus {
+        status
+        reason
+      }
+    }
+    ... on TransactionError {
+      reason
+      txReceipt {
+        to
+        from
+        contractAddress
+        gasUsed
+      }
+    }
+  }
+}

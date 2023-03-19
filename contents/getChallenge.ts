@@ -6,12 +6,12 @@ import { relay } from "@plasmohq/messaging/relay"
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
-export default relay(
+export const relayer =  relay(
   {
-    name: "storageSet" as const
-  }, 
+    name: "getChallenge" as const
+  },
   async (req) => {
-    const result = await sendToBackground(req)
-    return result
+    console.log("sending challenge")
+    return await sendToBackground(req)
   }
 )

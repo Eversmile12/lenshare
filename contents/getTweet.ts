@@ -6,14 +6,14 @@ import { relay } from "@plasmohq/messaging/relay"
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
-
-export const relayer = relay(
+export default relay(
   {
-
-    name: "authenticateSignature" as const
-  },
+    name: "getTweet" as const
+  }, 
+  
   async (req) => {
-    const tokens = await sendToBackground(req)
-    return tokens
+    console.log(req)
+    const result = await sendToBackground(req)
+    return result
   }
 )

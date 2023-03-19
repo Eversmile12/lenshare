@@ -1,10 +1,12 @@
-import { gql } from "@apollo/client";
 import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
-import { BigNumber, ethers } from "ethers";
-
-import { apolloClient } from "~apolloclient";
-import { CREATE_POST_TYPED_DATA } from "~graphql/createPostTypedData";
-import { storage } from "./storageHandler";
+import { lensClient } from "~lensClient";
+import { WalletHandler } from "./walletHandler";
+import * as M_CREATE_POST_TYPED_DATA from "./graphql/CreatePostTypedData.gql";
+import { gql } from "@apollo/client";
+import type {
+  CreatePostTypedDataMutation,
+  CreatePostTypedDataMutationVariables,
+} from "~.graphql/generated";
 
 export const createPostTypedData = async (request) => {
   const accessToken = await sendToBackgroundViaRelay({
@@ -13,10 +15,13 @@ export const createPostTypedData = async (request) => {
       id: "accessToken",
     },
   }).then((data) => data.response);
-  console.log(accessToken);
-  const result = await apolloClient.mutate({
+
+  const result = await lensClient.mutate<
+    CreatePostTypedDataMutation,
+    CreatePostTypedDataMutationVariables
+  >({
     mutation: gql`
-      ${CREATE_POST_TYPED_DATA}
+      ${M_CREATE_POST_TYPED_DATA}
     `,
     variables: {
       request,
@@ -28,7 +33,7 @@ export const createPostTypedData = async (request) => {
     },
   });
 
-  return result.data!.createPostTypedData;
+  return result.data.createPostTypedData;
 };
 
 export const createPost = async (fileHash, profileId) => {
@@ -37,10 +42,8 @@ export const createPost = async (fileHash, profileId) => {
   const postTypedData = await createPostTypedData(postRequest);
   console.log("create post: createPostRequest", postRequest);
   console.log("create post: createPostTypedData", postTypedData);
-  // send to bg
-
-  await storage.store("postData", postTypedData);
-  await storage.store("needPostSignature", true);
+  const walletHandler = new WalletHandler();
+  const tx = walletHandler.signPostData(postTypedData);
 };
 
 const createPostRequest = (contentHash: string, profileId: string) => {

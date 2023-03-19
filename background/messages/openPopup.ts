@@ -1,12 +1,13 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import { storage } from "~handlers/storageHandler";
 
-import { TwitterHandler } from "~twitter/twitterHandler";
+import { TwitterHandler } from "~handlers/twitterHandler";
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   const { relativeUrl, left, popupText, tweetText } = req.body;
-  await storage.store("popupText", popupText);
-  if (tweetText.length) await storage.store("tweetText", tweetText);
+  await storage.store("popupText", popupText ? popupText : "Review and edit your post before publishing it!");
+
+  if (tweetText?.length) await storage.store("tweetText", tweetText);
 
   chrome.windows.create({
     url: relativeUrl,

@@ -1,19 +1,10 @@
 import { gql } from "@apollo/client";
-import { HAS_TRANSACTION_BEEN_INDEXED } from "~graphql/hasTransactionBeenIndexed";
-import { apolloClient } from "../apolloclient";
+import { lensClient } from "../lensClient";
 
 const hasTxBeenIndexed = async (request) => {
-  const result = await apolloClient.query({
-    query: gql`
-      ${HAS_TRANSACTION_BEEN_INDEXED}
-    `,
-    variables: {
-      request,
-    },
-    fetchPolicy: "network-only",
-  });
+  const result = await lensClient.HasTxHashBeenIndexed({ request });
 
-  return result.data.hasTxHashBeenIndexed;
+  return result.hasTxHashBeenIndexed;
 };
 
 export const pollUntilIndexed = async (

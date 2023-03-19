@@ -6,13 +6,13 @@ import { relay } from "@plasmohq/messaging/relay"
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
-export const relayer = relay(
+export default relay(
   {
-    name: "storageDelete" as const
+    name: "storageSet" as const
   }, 
   async (req) => {
+    
     const result = await sendToBackground(req)
     return result
   }
 )
-

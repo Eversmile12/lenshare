@@ -1,10 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo";
-import { v4 as uuidv4 } from "uuid";
-import { Metadata, PublicationMainFocus } from "~interfaces/publication";
-import fleekStorage from "@fleekhq/fleek-storage-js";
 
 import { sendToBackground } from "@plasmohq/messaging";
-import { createPost } from "~handlers/postsHandler";
 import { storage } from "~handlers/storageHandler";
 
 export const config: PlasmoCSConfig = {
@@ -41,56 +37,6 @@ const getTweet = async () => {
   return tweet;
 };
 
-const uploadTweetOnIpfs = async (tweet) => {
-  console.log(tweet);
-  const profileId = await sendToBackground({
-    name: "storageGet",
-    body: {
-      id: "userId",
-    },
-  }).then((data) => data.response);
-
-  const metadataId = uuidv4();
-  console.log(typeof tweet.text);
-  const metadata: Metadata = {
-    /**
-     * The metadata version.
-     */
-    version: "2.0.0",
-    mainContentFocus: PublicationMainFocus.TEXT_ONLY,
-    metadata_id: metadataId,
-    appId: "lenshare",
-    name: tweet.text,
-    description: tweet.text,
-    locale: "en-US",
-    content: tweet.text,
-    external_url: null,
-    /**
-     * legacy to support OpenSea will store any NFT image here.
-     */
-    image: null,
-    imageMimeType: null,
-    animation_url: null,
-    /**
-     * These are the attributes for the item, which will show up on the OpenSea and others NFT trading websites on the 
-    item.
-     */
-    media: [],
-    attributes: [],
-    tags: ["lenshare frens", "Lenshared"],
-  };
-
-  const file = await fleekStorage.upload({
-    apiKey: `${process.env.PLASMO_PUBLIC_FLEEK_API_KEY}`,
-    apiSecret: `${process.env.PLASMO_PUBLIC_FLEEK_API_SECRET}`,
-    key: profileId.concat("-", metadataId),
-    data: JSON.stringify(metadata),
-    httpUploadProgressCallback: (event) => {
-      console.log(Math.round((event.loaded / event.total) * 100) + "% done");
-    },
-  });
-  return { hash: file.hash, profileId };
-};
 
 const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
   tweets.forEach((tweet) => {
@@ -104,20 +50,17 @@ const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
         await sendToBackground({
           name: "flushUnnecessaryStorage",
         });
-        await storage.store("isPopup", true);
         await sendToBackground({
           name: "openPopup",
           body: {
-            relativeUrl: "tabs/test.html",
+            relativeUrl: "tabs/window.html",
+            tweetText: tweet.text,
             left: screen.availWidth - 400,
             isFocus: true,
           },
         });
-        await storage.store("isPopup", false);
 
-        // const { hash, profileId } = await uploadTweetOnIpfs(tweet);
-
-        // await createPost(hash, profileId);
+      
       };
       tweet.appendChild(button);
     }

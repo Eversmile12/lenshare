@@ -6,6 +6,12 @@ import { relay } from "@plasmohq/messaging/relay";
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
 };
-export const relayer = relayMessage({
-  name: "needPostSignature" as const,
-});
+export const relayer = relay(
+  {
+    name: "verifyOrRefreshTokens" as const,
+  },
+  async (req) => {
+    const result = await sendToBackground(req);
+    return result;
+  }
+);

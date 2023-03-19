@@ -1,7 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 
 import { storage } from "~handlers/storageHandler";
-import type { ChallengeRequestProps } from "~types/ChallengeRequestProps.types";
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
   await storage.store("isReentrant", false);
