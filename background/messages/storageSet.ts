@@ -1,16 +1,14 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging"
+import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-import { storage } from "~handlers/storageHandler"
-import type { ChallengeRequestProps } from "~types/ChallengeRequestProps.types"
+import { storage } from "~handlers/storageHandler";
 
-const handler: PlasmoMessaging.MessageHandler = async (
-  req: ChallengeRequestProps,
-  res
-) => {
-  await storage.store(req.body.id, req.body.data)
+const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
+  const { id, data } = req.body;
+
+  await storage.store(id, data);
 
   res.send({
-    response: true
-  })
-}
-export default handler
+    response: true,
+  });
+};
+export default handler;

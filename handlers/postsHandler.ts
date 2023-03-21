@@ -1,39 +1,13 @@
-import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
-import { lensClient } from "~lensClient";
+import { lensClient } from "~handlers/lensClient";
 import { WalletHandler } from "./walletHandler";
-import * as M_CREATE_POST_TYPED_DATA from "./graphql/CreatePostTypedData.gql";
-import { gql } from "@apollo/client";
-import type {
-  CreatePostTypedDataMutation,
-  CreatePostTypedDataMutationVariables,
-} from "~.graphql/generated";
+import { storage } from "./storageHandler";
 
-export const createPostTypedData = async (request) => {
-  const accessToken = await sendToBackgroundViaRelay({
-    name: "storageGet",
-    body: {
-      id: "accessToken",
-    },
-  }).then((data) => data.response);
+export const createPostTypedData = async (postRequest) => {
+  const accessToken = await storage.retrieve("accessToken");
 
-  const result = await lensClient.mutate<
-    CreatePostTypedDataMutation,
-    CreatePostTypedDataMutationVariables
-  >({
-    mutation: gql`
-      ${M_CREATE_POST_TYPED_DATA}
-    `,
-    variables: {
-      request,
-    },
-    context: {
-      headers: {
-        "x-access-token": `Bearer ${accessToken}`,
-      },
-    },
-  });
+  const result = await lensClient.createTypedPostData(postRequest, accessToken);
 
-  return result.data.createPostTypedData;
+  return result;
 };
 
 export const createPost = async (fileHash, profileId) => {
@@ -42,12 +16,12 @@ export const createPost = async (fileHash, profileId) => {
   const postTypedData = await createPostTypedData(postRequest);
   console.log("create post: createPostRequest", postRequest);
   console.log("create post: createPostTypedData", postTypedData);
-  const walletHandler = new WalletHandler();
-  const tx = walletHandler.signPostData(postTypedData);
+  await storage.store("postTypedData", postTypedData);
+  await storage.store("isPosting", true);
 };
 
 const createPostRequest = (contentHash: string, profileId: string) => {
-  const createPostRequest = {
+  const postRequest = {
     profileId,
     contentURI: `ipfs://${contentHash}`,
     collectModule: {
@@ -121,5 +95,5 @@ const createPostRequest = (contentHash: string, profileId: string) => {
     },
   };
 
-  return createPostRequest;
+  return postRequest;
 };

@@ -17,8 +17,7 @@ const PopupWindow = () => {
   const [tweetText] = useStorage<string>("tweetText");
   const [modifiedTweetText, setModifiedTweetText] = useState("");
 
-  const uploadTweetOnIpfs = async (tweet) => {
-    console.log(tweet);
+  const uploadTweetOnIpfs = async () => {
     const profileId = await sendToBackground({
       name: "storageGet",
       body: {
@@ -27,7 +26,7 @@ const PopupWindow = () => {
     }).then((data) => data.response);
 
     const metadataId = uuidv4();
-    console.log(typeof tweet.text);
+
     const metadata: Metadata = {
       /**
        * The metadata version.
@@ -35,11 +34,11 @@ const PopupWindow = () => {
       version: "2.0.0",
       mainContentFocus: PublicationMainFocus.TEXT_ONLY,
       metadata_id: metadataId,
-      appId: "lenshare",
-      name: tweet.text,
-      description: tweet.text,
+      appId: "Lens Bridge",
+      name: modifiedTweetText,
+      description: modifiedTweetText,
       locale: "en-US",
-      content: tweet.text,
+      content: modifiedTweetText,
       external_url: null,
       /**
        * legacy to support OpenSea will store any NFT image here.
@@ -53,7 +52,7 @@ const PopupWindow = () => {
      */
       media: [],
       attributes: [],
-      tags: ["lenshare frens", "Lenshared"],
+      tags: ["Lens Bridge", "bridged", "Bridge frens"],
     };
 
     const file = await fleekStorage.upload({
@@ -69,7 +68,7 @@ const PopupWindow = () => {
   };
   const post = async () => {
     console.log("yo");
-    const { hash, profileId } = await uploadTweetOnIpfs(modifiedTweetText);
+    const { hash, profileId } = await uploadTweetOnIpfs();
     console.log(hash, profileId);
     await createPost(hash, profileId);
   };
@@ -83,7 +82,7 @@ const PopupWindow = () => {
           <label className="sr-only">Your comment</label>
           <textarea
             id="comment"
-            rows={6}
+            rows={9}
             value={modifiedTweetText}
             onChange={(e) => {
               setModifiedTweetText(e.target.value);

@@ -1,6 +1,6 @@
 {
-  "name": "lenshare",
-  "displayName": "Lenshare",
+  "name": "Lens Bridge",
+  "displayName": "Lens Bridge",
   "version": "0.0.1",
   "description": "A basic Plasmo extension.",
   "author": "vitto rivabella",
@@ -58,6 +58,18 @@
       "storage",
       "tabs",
       "notifications"
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+      
+          "assets/bridge-icon.png"
+     
+        ],
+        "matches": [
+          "https://www.twitter.com/*"
+        ]
+      }
     ]
   }
 }

@@ -15,7 +15,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     height: 600,
     left: left,
     focused: false,
-    type: "popup",
+    type: "panel",
   });
   res.send({
     success: true,

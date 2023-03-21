@@ -8,6 +8,7 @@ export class WalletHandler {
   private provider;
 
   constructor() {
+    console.log(window.ethereum);
     this.walletProvider = window.web3.currentProvider;
     this.provider = new ethers.providers.Web3Provider(
       this.walletProvider,
@@ -57,8 +58,11 @@ export class WalletHandler {
         name: "getUserProfiles",
       });
       // add no profiles messaging
-      console.log("address logged in", address);
-      if (!profiles.length) return;
+      console.log("profiles", profiles);
+      if (!profiles.length) {
+        console.log("no profiles found");
+        return;
+      }
       console.log("getting challenge");
       const { challenge } = await sendToBackgroundViaRelay({
         name: "getChallenge",
@@ -94,6 +98,9 @@ export class WalletHandler {
           id: "userId",
           data: profiles[0].id,
         },
+      });
+      await sendToBackgroundViaRelay({
+        name: "reloadWindow",
       });
     } catch (e) {
       return;

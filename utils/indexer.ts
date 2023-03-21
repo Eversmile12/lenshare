@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { lensClient } from "../lensClient";
+import { lensClient } from "../handlers/lensClient";
 
 const hasTxBeenIndexed = async (request) => {
   const result = await lensClient.HasTxHashBeenIndexed({ request });

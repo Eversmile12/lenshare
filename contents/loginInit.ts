@@ -10,10 +10,17 @@ export const config: PlasmoCSConfig = {
 };
 
 window.addEventListener("load", async () => {
+  const isLogin = await sendToBackgroundViaRelay({
+    name: "storageGet",
+    body: {
+      id: "isLogin",
+    },
+  }).then(data => data.response);
+  console.log(isLogin)
+  if (isLogin) return;
   await sendToBackgroundViaRelay({
     name: "flushUnnecessaryStorage",
   });
-
   const walletHandler = new WalletHandler();
   await walletHandler.login();
 });

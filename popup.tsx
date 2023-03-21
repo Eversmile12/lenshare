@@ -9,14 +9,19 @@ import { WalletHandler } from "~handlers/walletHandler";
 import * as style from "./styles/popup.module.css";
 
 import "~style.css";
+import "~base.css";
 
 function IndexPopup() {
   const [isPopup] = useStorage<boolean>("isPopup");
-  
+
   return <>{isPopup ? <PopupWindow /> : <ExtensionWindow />}</>;
 }
 export const PopupWindow = () => {
-  return(<div><h1>Let's go popups!</h1></div>);
+  return (
+    <div>
+      <h1>Let's go popups!</h1>
+    </div>
+  );
 };
 export const ExtensionWindow = () => {
   const [currentProfile, setCurrentProfile] = useState<any>();
@@ -44,6 +49,7 @@ export const ExtensionWindow = () => {
   const login = async () => {
     console.log("logging in");
     await storage.store("wantsLogin", true);
+    window.close();
   };
 
   const logout = async () => {
@@ -52,6 +58,7 @@ export const ExtensionWindow = () => {
     await storage.store("address", null);
     await storage.store("isLogin", false);
     await storage.store("wantsLogin", false);
+    window.close();
   };
 
   useEffect(() => {
@@ -64,8 +71,9 @@ export const ExtensionWindow = () => {
     <div className={style.popup_container}>
       {currentProfile && isLogin ? (
         <div className={style.info_container}>
-          <div className={style.profile_picture_container}>
-            <img className={style.profile_picture} src={profileImage}></img>
+          <div className="relative">
+            <img className="w-20 h-20 rounded " src={profileImage} />
+            <span className="top-0 right-0 absolute w-4 h-4 -mr-2 -mt-1 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
           </div>
           <h3>@{currentProfile.handle}</h3>
           <div className={style.following_container}>
@@ -82,29 +90,38 @@ export const ExtensionWindow = () => {
               </p>
             </div>
           </div>
-          <div className={"button-group"}>
-            <a className={"button-primary"} onClick={logout}>
-              Logout
-            </a>
-            <a className={"button-primary"}>Settings</a>
+          <div>
+            <button
+              type="button"
+              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100  font-medium rounded-lg text-sm px-5 py-1.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+            >
+              settings
+            </button>
+            <button
+              type="button"
+              onClick={logout}
+              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100  font-medium rounded-lg text-sm px-5 py-1.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+            >
+              logout
+            </button>
           </div>
         </div>
       ) : (
         <div className={style.info_container}>
-          <div className={style.profile_picture_container}>
-            <img
-              className={style.profile_picture}
-              src={"https://via.placeholder.com/500"}
-            ></img>
-          </div>
+          <img
+            className="w-20 h-20 rounded "
+            src={"https://via.placeholder.com/500"}
+          />
+
           <h3>Welcome on Lenshare!</h3>
           <p>Start by connecting your account</p>
 
-          <div className={"button-group"}>
-            <a className={"button-primary"} onClick={login}>
-              Login
-            </a>
-          </div>
+          <button
+            type="button"
+            className="text-white outline-none border-none bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+          >
+            Login with lens
+          </button>
         </div>
       )}
     </div>
