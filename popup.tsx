@@ -76,8 +76,8 @@ export const ExtensionWindow = () => {
             <span className="top-0 right-0 absolute w-4 h-4 -mr-2 -mt-1 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
           </div>
           <h3>@{currentProfile.handle}</h3>
-          <div className={style.following_container}>
-            <div className={style.followers_container}>
+          <div>
+            <div>
               <p>
                 <strong>{currentProfile.stats.totalFollowers} </strong>
                 <span>Followers</span>
