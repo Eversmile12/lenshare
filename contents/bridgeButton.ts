@@ -47,13 +47,19 @@ const getTweet = async () => {
 const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
   tweets.forEach((tweet) => {
     if (!tweet.querySelector("#lens-mirror-wizard")) {
-      const buttonBar = tweet.querySelector("div [role*='group']");
+      const buttonBarList = tweet.querySelectorAll("div [role*='group']");
+      let buttonBar;
+      if (buttonBarList.length > 1) {
+        buttonBar = buttonBarList[1];
+      } else {
+        buttonBar = buttonBarList[0];
+      }
       if (buttonBar) {
         const buttonContainer = document.createElement("div");
         buttonContainer.style.display = "flex";
         buttonContainer.style.height = "100%";
         buttonContainer.style.marginRight = "16px";
-        buttonContainer.style.marginLeft = "4px";
+        buttonContainer.style.marginLeft = "12px";
         buttonContainer.style.alignItems = "center";
         buttonContainer.style.cursor = "pointer";
 
@@ -82,15 +88,9 @@ const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
           });
         };
 
-        const label = document.createElement("p");
-        label.textContent = "Bridge";
-        label.style.color = "#71767b";
-        label.style.fontFamily = "Monospace";
-        label.style.marginLeft = "6px";
-
         console.log(buttonBar);
         buttonContainer.appendChild(button);
-        buttonContainer.appendChild(label);
+
         buttonBar.appendChild(buttonContainer);
       }
     }

@@ -20,7 +20,6 @@
     height: 80px;
     border-radius: 100%;
     margin-bottom: .5rem;
-
 }
 
 
@@ -28,6 +27,8 @@
     border-radius: 100%;
     width: 80px;
     height: 80px;
+    outline: 2px solid black;
+
 }
 
 .following_container{

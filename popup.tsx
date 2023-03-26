@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import infoCircle from "data-base64:~assets/info_circle.png";
 
 import { sendToBackground } from "@plasmohq/messaging";
 
 import { storage } from "~handlers/storageHandler";
-import { WalletHandler } from "~handlers/walletHandler";
-
-import * as style from "./styles/popup.module.css";
 
 import "~style.css";
 import "~base.css";
+import { ProfileImage } from "~components/profileImage";
+import { MainButton } from "~components/button";
+import { PopupLayout } from "~layouts/main.l";
 
 function IndexPopup() {
   const [isPopup] = useStorage<boolean>("isPopup");
@@ -68,63 +69,82 @@ export const ExtensionWindow = () => {
     }
   }, []);
   return (
-    <div className={style.popup_container}>
+    <PopupLayout width={"300"} height={"500"}>
       {currentProfile && isLogin ? (
-        <div className={style.info_container}>
-          <div className="relative">
-            <img className="w-20 h-20 rounded " src={profileImage} />
-            <span className="top-0 right-0 absolute w-4 h-4 -mr-2 -mt-1 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
-          </div>
-          <h3>@{currentProfile.handle}</h3>
-          <div>
-            <div>
-              <p>
-                <strong>{currentProfile.stats.totalFollowers} </strong>
-                <span>Followers</span>
-              </p>
-            </div>
-            <div>
-              <p>
-                <strong> {currentProfile.stats.totalFollowing} </strong>
-                <span>Following</span>
-              </p>
+        <div className={"flex flex-col w-full justify-center"}>
+          <div className="flex flex-col justify-center items-center mb-3 gap-2">
+            <ProfileImage profileImage={profileImage} />
+            <div className="flex gap-10 justify-center">
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-md font-bold">
+                  {currentProfile.stats.totalFollowers}
+                </p>
+                <p>Followers</p>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-md font-bold">
+                  {currentProfile.stats.totalFollowing}
+                </p>
+                <p>Following</p>
+              </div>
             </div>
           </div>
-          <div>
-            <button
-              type="button"
-              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100  font-medium rounded-lg text-sm px-5 py-1.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-            >
-              settings
-            </button>
-            <button
-              type="button"
-              onClick={logout}
-              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100  font-medium rounded-lg text-sm px-5 py-1.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-            >
-              logout
-            </button>
+          <div className="flex gap-3 items-center justify-center mb-5">
+            <MainButton variant="secondary" text={"Settings"} />
+            <MainButton text={"New post"} />
+          </div>
+          <div className="w-full flex justify-center mb-3">
+            <div className="bg-gray-900 w-full rounded-lg p-4 h-120">
+              <h2 className="text-white text-lg">Loved by the community</h2>
+              <div className="flex text-white gap-6">
+                <div className="w-50 h-50 bg-gray-500 rounded-lg">
+                  <p>Lorem</p>
+                  {/* <img></img> */}
+                </div>
+                <div className="w-50 h-50 bg-gray-500 rounded-lg">
+                  <p>Lorem</p>
+                  {/* <img></img> */}
+                </div>
+                <div className="w-50 h-50 bg-gray-500 rounded-lg">
+                  <p>Lorem</p>
+                  {/* <img></img> */}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="w-full flex justify-center mb-3">
+            <div className="flex items-center gap-2 bg-gray-900 w-full rounded-lg p-2 ">
+              <div className="w-30 h-30 bg-gray-500 rounded-lg">
+                {/* <img></img> */}
+              </div>
+              <p className="text-white">Achievements</p>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <MainButton variant="tertiary" text={"Donate"} />
           </div>
         </div>
       ) : (
-        <div className={style.info_container}>
-          <img
-            className="w-20 h-20 rounded "
-            src={"https://via.placeholder.com/500"}
-          />
+        <div className="flex flex-col items-center w-full justify-center gap-y-3">
+          <ProfileImage profileImage={""} />
 
-          <h3>Welcome on Lenshare!</h3>
-          <p>Start by connecting your account</p>
+          <h3>Login to start cross-posting on lens</h3>
+          <div className="flex w-full justify-evenly">
+            <MainButton variant={"secondary"} text={"Docs"} />
+            <div className="relative">
+              <img
+                src={infoCircle}
+                className={"absolute top-0 right-0 -mt-1 -mr-1"}
+                width={15}
+                height={15}
+              ></img>
 
-          <button
-            type="button"
-            className="text-white outline-none border-none bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-          >
-            Login with lens
-          </button>
+              <MainButton text={"Login"} />
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </PopupLayout>
   );
 };
 export default IndexPopup;

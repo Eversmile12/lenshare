@@ -12,6 +12,9 @@ import type {
   CreatePostTypedDataMutation,
   CreatePostTypedDataMutationVariables,
   CreatePublicPostRequest,
+  NotificationRequest,
+  NotificationsQuery,
+  NotificationsQueryVariables,
   ProfilesQuery,
   ProfilesQueryVariables,
   RefreshMutation,
@@ -26,6 +29,7 @@ import * as M_REFRESH_TOKENS from "../graphql/RefreshTokens.gql";
 import * as Q_CHALLENGE from "../graphql/ChallengeRequest.gql";
 import * as Q_VERIFY_REFRESH_TOKEN from "../graphql/VerifyAuthToken.gql";
 import * as Q_PROFILES from "../graphql/GetDefaultProfile.gql";
+import * as Q_NOTIFICATIONS from "../graphql/NotificationsRequest.gql";
 
 export class LensClient {
   client: ApolloClient<NormalizedCacheObject>;
@@ -137,7 +141,7 @@ export class LensClient {
       profiles: response.data.profiles.items,
     };
   }
-
+  
   async createTypedPostData(
     postRequest: CreatePublicPostRequest,
     accessToken: string
@@ -161,6 +165,31 @@ export class LensClient {
 
     return result.data.createPostTypedData;
   }
+
+  async getNotifications(profileId: string, accessToken) {
+    const result = await this.client.mutate<
+      NotificationsQuery,
+      NotificationsQueryVariables
+    >({
+      mutation: gql`
+        ${Q_NOTIFICATIONS}
+      `,
+      variables: {
+        request: { profileId },
+      },
+      context: {
+        headers: {
+          "x-access-token": `Bearer ${accessToken}`,
+        },
+      },
+    });
+
+    return result.data.notifications.items;
+  }
+
+  // async postGasless(profileId) {
+  //   if()
+  // }
 }
 
 export const lensClient = new LensClient();

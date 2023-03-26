@@ -100,6 +100,13 @@ export class WalletHandler {
         },
       });
       await sendToBackgroundViaRelay({
+        name: "storageSet",
+        body: {
+          id: "isDispatcher",
+          data: profiles[0].dispatcher.canUseRelay,
+        },
+      });
+      await sendToBackgroundViaRelay({
         name: "reloadWindow",
       });
     } catch (e) {
