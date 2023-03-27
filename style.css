@@ -11,7 +11,8 @@ body{
 
 h1, h2, h3{
     margin: 0px;
-
+    margin-bottom: 3px;
+    line-height: .9;
 }
 
 .button-group{
