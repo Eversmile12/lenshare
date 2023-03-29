@@ -1,8 +1,8 @@
 import { lensClient } from "~handlers/lensClient";
-import { storage } from "./storageHandler";
+import { AppStorage } from "./storageHandler";
 
 export const createPostTypedData = async (postRequest) => {
-  const accessToken = await storage.retrieve("accessToken");
+  const accessToken = await AppStorage.retrieve("accessToken");
 
   const result = await lensClient.createTypedPostData(postRequest, accessToken);
 
@@ -15,8 +15,8 @@ export const createPost = async (fileHash, profileId) => {
   const postTypedData = await createPostTypedData(postRequest);
   console.log("create post: createPostRequest", postRequest);
   console.log("create post: createPostTypedData", postTypedData);
-  await storage.store("postTypedData", postTypedData);
-  await storage.store("isPosting", true);
+  await AppStorage.store("postTypedData", postTypedData);
+  await AppStorage.store("isPosting", true);
 };
 
 const createPostRequest = (contentHash: string, profileId: string) => {

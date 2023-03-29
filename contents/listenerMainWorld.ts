@@ -18,7 +18,7 @@ window.addEventListener("load", () => {
     }).then((data) => data.response);
     if (wantsLogin) {
       const walletHandler = new WalletHandler();
-      await walletHandler.login();
+      await walletHandler.loginAndInitSettings();
       await sendToBackgroundViaRelay({
         name: "storageSet",
         body: {
@@ -35,12 +35,6 @@ window.addEventListener("load", () => {
         id: "isPosting",
       },
     }).then((data) => data.response);
-    const postTypedData = await sendToBackgroundViaRelay({
-      name: "storageGet",
-      body: {
-        id: "postTypedData",
-      },
-    }).then((data) => data.response);
     if (isPosting) {
       await sendToBackgroundViaRelay({
         name: "storageSet",
@@ -49,11 +43,18 @@ window.addEventListener("load", () => {
           data: false,
         },
       });
+      const postTypedData = await sendToBackgroundViaRelay({
+        name: "storageGet",
+        body: {
+          id: "postTypedData",
+        },
+      }).then((data) => data.response);
       await sendToBackgroundViaRelay({
         name: "storageSet",
         body: {
           id: "postTypedData",
           data: null,
+          area:"local"
         },
       });
       const walletHandler = new WalletHandler();

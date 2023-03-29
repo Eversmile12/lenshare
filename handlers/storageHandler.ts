@@ -1,28 +1,29 @@
-import { Storage } from "@plasmohq/storage"
+import { Storage } from "@plasmohq/storage";
 
-class AppStorage {
-  private storage: Storage
-
-  constructor() {
-    this.storage = new Storage()
-  }
-  store(objectName: string, value: any) {
+export class AppStorage {
+  static store(objectName: string, value: any, area?: string) {
+    const storage = new Storage({
+      area: area === "local" ? "local" : "sync",
+    });
     try {
-      console.log("stored ", objectName, " as ", value)
-      return this.storage.set(objectName, value)
+      console.log("stored ", objectName, " as ", value);
+      return storage.set(objectName, value);
     } catch (e) {
-      console.log("ERR_STORE_SET:", e)
-      return
+      console.log("ERR_STORE_SET:", e);
+      return;
     }
   }
-  retrieve(objectName) {
+  static retrieve(objectName, area?: string) {
+    const storage = new Storage({
+      area: area === "local" ? "local" : "sync",
+    });
     try {
-      return this.storage.get(objectName)
+      return storage.get(objectName);
     } catch (e) {
-      console.log("ERR_STORE_RETRIEVE:", e)
-      return
+      console.log("ERR_STORE_RETRIEVE:", e);
+      return;
     }
   }
 }
 
-export const storage = new AppStorage()
+export const storage = new AppStorage();

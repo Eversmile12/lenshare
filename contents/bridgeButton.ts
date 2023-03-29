@@ -1,7 +1,7 @@
 import type { PlasmoCSConfig } from "plasmo";
-import bridge from "data-base64:~assets/bridge-icon.svg";
+import icon from "data-base64:~assets/icon.png";
 import { sendToBackground } from "@plasmohq/messaging";
-import { storage } from "~handlers/storageHandler";
+import { AppStorage } from "~handlers/storageHandler";
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"],
@@ -9,9 +9,9 @@ export const config: PlasmoCSConfig = {
 };
 
 window.addEventListener("load", async () => {
-  const isLogin = await storage
-    .retrieve("isLogin")
-    .then((response) => response);
+  const isLogin = await AppStorage.retrieve("isLogin").then(
+    (response) => response
+  );
   if (!isLogin) return;
   var link = document.createElement("link");
   link.setAttribute("rel", "stylesheet");
@@ -59,18 +59,22 @@ const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
         buttonContainer.style.display = "flex";
         buttonContainer.style.height = "100%";
         buttonContainer.style.marginRight = "16px";
-        buttonContainer.style.marginLeft = "12px";
+        buttonContainer.style.marginLeft = "6px";
         buttonContainer.style.alignItems = "center";
         buttonContainer.style.cursor = "pointer";
+        const button = document.createElement("div");
+        button.style.backgroundColor = "#1F2937";
+        button.style.padding = "0px 8px";
+        button.style.borderRadius = "12px";
 
-        const button = document.createElement("img");
-        button.src = bridge;
-        button.width = 26;
-        button.height = 26;
-        button.style.color = "white";
-        button.id = "lens-mirror-wizard";
-        button.style.cursor = "pointer";
-        buttonContainer.onclick = async () => {
+        const buttonIcon = document.createElement("img");
+        buttonIcon.src = icon;
+        buttonIcon.width = 26;
+        buttonIcon.height = 26;
+        buttonIcon.style.color = "white";
+        buttonIcon.id = "lens-mirror-wizard";
+        buttonIcon.style.cursor = "pointer";
+        button.onclick = async () => {
           const tweet = await getTweet();
 
           await sendToBackground({
@@ -80,15 +84,14 @@ const attachButtonToTweets = (tweets: NodeListOf<HTMLElement>) => {
           await sendToBackground({
             name: "openPopup",
             body: {
-              relativeUrl: "tabs/window.html",
+              relativeUrl: "tabs/editor.html",
               tweetText: tweet.text,
               left: screen.availWidth - 400,
               isFocus: true,
             },
           });
         };
-
-        console.log(buttonBar);
+        button.appendChild(buttonIcon);
         buttonContainer.appendChild(button);
 
         buttonBar.appendChild(buttonContainer);

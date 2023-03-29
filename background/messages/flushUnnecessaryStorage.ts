@@ -1,13 +1,16 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-import { storage } from "~handlers/storageHandler";
+import { AppStorage } from "~handlers/storageHandler";
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
-  await storage.store("isReentrant", false);
-  await storage.store("pollingTx", null);
-  await storage.store("needPostSignature", false);
-  await storage.store("postData", false);
-  await storage.store("wantsLogin", false);
+  await AppStorage.store("isReentrant", false);
+  await AppStorage.store("pollingTx", null);
+  await AppStorage.store("needPostSignature", false);
+  await AppStorage.store("postData", false, "local");
+  await AppStorage.store("wantsLogin", false);
+  await AppStorage.store("notifications", null, "local");
+  await AppStorage.store("notificationsCursor", null, "local");
+
   res.send({ success: true });
 };
 

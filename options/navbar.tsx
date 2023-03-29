@@ -12,7 +12,7 @@ export const NavBar = () => {
         <a href="#">vote features</a>
       </div>
       <div className="flex gap-16">
-        <MainButton text={"Leave a review"} />
+        <MainButton callback={null} text={"Leave a review"} />
         <div className="flex gap-2">
           <div className="h-30 w-30 bg-gray-700 rounded-md">
             <img src="#"></img>

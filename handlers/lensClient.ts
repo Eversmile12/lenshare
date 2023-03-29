@@ -141,7 +141,7 @@ export class LensClient {
       profiles: response.data.profiles.items,
     };
   }
-  
+
   async createTypedPostData(
     postRequest: CreatePublicPostRequest,
     accessToken: string
@@ -166,7 +166,7 @@ export class LensClient {
     return result.data.createPostTypedData;
   }
 
-  async getNotifications(profileId: string, accessToken) {
+  async getNotifications(profileId: string, accessToken, cursor?) {
     const result = await this.client.mutate<
       NotificationsQuery,
       NotificationsQueryVariables
@@ -175,7 +175,10 @@ export class LensClient {
         ${Q_NOTIFICATIONS}
       `,
       variables: {
-        request: { profileId },
+        request: {
+          profileId,
+          cursor,
+        },
       },
       context: {
         headers: {
@@ -183,8 +186,10 @@ export class LensClient {
         },
       },
     });
-
-    return result.data.notifications.items;
+    return {
+      cursor: result.data.notifications.pageInfo.prev,
+      notifications: result.data.notifications.items,
+    };
   }
 
   // async postGasless(profileId) {

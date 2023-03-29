@@ -4,76 +4,91 @@ import infoCircle from "data-base64:~assets/info_circle.png";
 
 import { sendToBackground } from "@plasmohq/messaging";
 
-import { storage } from "~handlers/storageHandler";
+import { AppStorage, storage } from "~handlers/storageHandler";
 
 import "~style.css";
 import "~base.css";
 import { ProfileImage } from "~components/profileImage";
 import { MainButton } from "~components/button";
-import { PopupLayout } from "~layouts/main.l";
+import { PopupLayout } from "~popup/layouts/popupLayout";
+import { DropdownMenu } from "~popup/dropdownMenu";
+import { NotificationWindow } from "./notificationsWindow";
 
 function IndexPopup() {
   const [isPopup] = useStorage<boolean>("isPopup");
 
-  return <>{isPopup ? <PopupWindow /> : <ExtensionWindow />}</>;
-}
-export const PopupWindow = () => {
   return (
-    <div>
-      <h1>Let's go popups!</h1>
-    </div>
+    <>
+      {" "}
+      <ExtensionWindow />
+    </>
   );
-};
+}
+
 export const ExtensionWindow = () => {
   const [currentProfile, setCurrentProfile] = useState<any>();
   const [profileImage, setProfileImage] = useState<string>();
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLogin] = useStorage<string>("isLogin");
+  const [isNotificationsViewVisible, setIsNotificationsViewVisible] =
+    useState(false);
   const getIpfsGatedURL = (ipfsURL: string): string => {
     const ipfsId = ipfsURL.split("//")[1];
     return `https://ipfs.filebase.io/ipfs/${ipfsId}`;
   };
 
-  const getIsLogin = async () => {
-    const storedisLogin = await storage.retrieve("isLogin");
-    setIsLogin(Boolean(storedisLogin));
-  };
   const getUserProfiles = async () => {
+    const address = await sendToBackground({
+      name: "storageGet",
+      body: {
+        id: "address",
+      },
+    }).then((data) => data.response);
     const { profiles } = await sendToBackground({
       name: "getUserProfiles",
+      body: {
+        address: address,
+      },
     });
-    console.log(profiles);
+    console.log("profile", profiles);
     setCurrentProfile(profiles[0]);
-
     setProfileImage(getIpfsGatedURL(profiles[0].picture.original.url));
   };
 
   const login = async () => {
     console.log("logging in");
-    await storage.store("wantsLogin", true);
+    await AppStorage.store("wantsLogin", true);
     window.close();
   };
 
-  const logout = async () => {
-    await storage.store("accessToken", null);
-    await storage.store("refreshToken", null);
-    await storage.store("address", null);
-    await storage.store("isLogin", false);
-    await storage.store("wantsLogin", false);
-    window.close();
+  const openSettings = () => {
+    chrome.runtime.openOptionsPage();
   };
 
   useEffect(() => {
-    if (!currentProfile) {
+    if (!currentProfile && isLogin) {
+      console.log("getting profile");
       getUserProfiles();
-      getIsLogin();
     }
-  }, []);
+  }, [isLogin]);
+
+
   return (
     <PopupLayout width={"300"} height={"500"}>
       {currentProfile && isLogin ? (
         <div className={"flex flex-col w-full justify-center"}>
           <div className="flex flex-col justify-center items-center mb-3 gap-2">
-            <ProfileImage profileImage={profileImage} />
+            <div
+            // onClick={() =>
+            //   setIsNotificationsViewVisible(!isNotificationsViewVisible)
+            // }
+            >
+              <ProfileImage
+                callback={() => {
+                  setIsNotificationsViewVisible(!isNotificationsViewVisible);
+                }}
+                profileImage={profileImage}
+              />
+            </div>
             <div className="flex gap-10 justify-center">
               <div className="flex flex-col items-center justify-center">
                 <p className="text-md font-bold">
@@ -90,8 +105,12 @@ export const ExtensionWindow = () => {
             </div>
           </div>
           <div className="flex gap-3 items-center justify-center mb-5">
-            <MainButton variant="secondary" text={"Settings"} />
-            <MainButton text={"New post"} />
+            <MainButton
+              callback={openSettings}
+              variant="secondary"
+              text={"Settings"}
+            />
+            <MainButton callback={null} text={"New post"} />
           </div>
           <div className="w-full flex justify-center mb-3">
             <div className="bg-gray-900 w-full rounded-lg p-4 h-120">
@@ -121,8 +140,10 @@ export const ExtensionWindow = () => {
             </div>
           </div>
           <div className="flex justify-end">
-            <MainButton variant="tertiary" text={"Donate"} />
+            <MainButton callback={null} variant="tertiary" text={"Donate"} />
           </div>
+          <DropdownMenu />
+          <NotificationWindow isVisible={isNotificationsViewVisible} />
         </div>
       ) : (
         <div className="flex flex-col items-center w-full justify-center gap-y-3">
@@ -130,7 +151,7 @@ export const ExtensionWindow = () => {
 
           <h3>Login to start cross-posting on lens</h3>
           <div className="flex w-full justify-evenly">
-            <MainButton variant={"secondary"} text={"Docs"} />
+            <MainButton callback={null} variant={"secondary"} text={"Docs"} />
             <div className="relative">
               <img
                 src={infoCircle}
@@ -139,7 +160,7 @@ export const ExtensionWindow = () => {
                 height={15}
               ></img>
 
-              <MainButton text={"Login"} />
+              <MainButton callback={login} text={"Login"} />
             </div>
           </div>
         </div>

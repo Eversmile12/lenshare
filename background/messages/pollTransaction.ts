@@ -1,8 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { BigNumber, ethers } from "ethers";
 
-import { storage } from "~handlers/storageHandler"
-import type { ChallengeRequestProps } from "~types/ChallengeRequestProps.types"
 import { pollUntilIndexed } from "~utils/indexer";
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {

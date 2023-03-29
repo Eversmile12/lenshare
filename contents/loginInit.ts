@@ -15,12 +15,18 @@ window.addEventListener("load", async () => {
     body: {
       id: "isLogin",
     },
-  }).then(data => data.response);
-  console.log(isLogin)
-  if (isLogin) return;
+  }).then((data) => data.response);
+  const isLoginOnLoad = await sendToBackgroundViaRelay({
+    name: "storageGet",
+    body: {
+      id: "isLoginOnLoad",
+    },
+  }).then((data) => data.response);
+  if (isLogin || !isLoginOnLoad) return;
+
   await sendToBackgroundViaRelay({
     name: "flushUnnecessaryStorage",
   });
   const walletHandler = new WalletHandler();
-  await walletHandler.login();
+  await walletHandler.loginAndInitSettings();
 });

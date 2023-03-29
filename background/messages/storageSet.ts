@@ -1,11 +1,11 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-import { storage } from "~handlers/storageHandler";
+import { AppStorage, storage } from "~handlers/storageHandler";
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
-  const { id, data } = req.body;
+  const { id, data, area } = req.body;
 
-  await storage.store(id, data);
+  await AppStorage.store(id, data, area ? area : null);
 
   res.send({
     response: true,

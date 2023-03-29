@@ -1,19 +1,18 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-import { storage } from "~handlers/storageHandler";
+import { AppStorage, storage } from "~handlers/storageHandler";
 import { lensClient } from "~handlers/lensClient";
 
 const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
   console.log("verifying tokens");
 
-  const currentAccessToken = await storage.retrieve("accessToken");
-  const currentRefreshToken = await storage.retrieve("refreshToken");
+  const currentAccessToken = await AppStorage.retrieve("accessToken");
+  const currentRefreshToken = await AppStorage.retrieve("refreshToken");
 
   console.log("ACCESS_TOKEN", currentAccessToken);
   console.log("REFRESH_TOKEN", currentRefreshToken);
 
   if (!currentAccessToken?.length && !currentRefreshToken?.length) {
-    
     res.send({
       accessToken: null,
       refreshToken: null,
@@ -48,8 +47,8 @@ const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
       message: "FAILED: refresh token is expired",
     });
   }
-  await storage.store("accessToken", accessToken);
-  await storage.store("refreshToken", refreshToken);
+  await AppStorage.store("accessToken", accessToken);
+  await AppStorage.store("refreshToken", refreshToken);
 
   res.send({
     accessToken,

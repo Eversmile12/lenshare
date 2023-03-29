@@ -1,8 +1,26 @@
-export const Toggle = () => {
+import { useStorage } from "@plasmohq/storage/hook";
+import { AppStorage, storage } from "~handlers/storageHandler";
+import { Storage } from "@plasmohq/storage";
+
+export const Toggle = ({ settingId }) => {
+  const [settingValue] = useStorage({
+    key: settingId,
+    instance: new Storage({
+      area: "local",
+    }),
+  });
   return (
     <div>
       <label className="relative inline-flex items-center cursor-pointer">
-        <input type="checkbox" value="" className="sr-only peer" />
+        <input
+          checked={settingValue}
+          onChange={(e) => {
+            AppStorage.store(settingId, e.target.checked, "local");
+          }}
+          type="checkbox"
+          value=""
+          className="sr-only peer"
+        />
         <div
           className="w-9 h-4 bg-gray-500 
           peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 

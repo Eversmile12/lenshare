@@ -8,12 +8,13 @@ export class WalletHandler {
   private provider;
 
   constructor() {
-    console.log(window.ethereum);
     this.walletProvider = window.web3.currentProvider;
-    this.provider = new ethers.providers.Web3Provider(
-      this.walletProvider,
-      "any"
-    );
+    if (this.walletProvider) {
+      this.provider = new ethers.providers.Web3Provider(
+        this.walletProvider,
+        "any"
+      );
+    }
   }
 
   public getWindowProvider = () => {
@@ -37,6 +38,26 @@ export class WalletHandler {
     return signer;
   };
 
+  async loginAndInitSettings() {
+    await sendToBackgroundViaRelay({
+      name: "flushUnnecessaryStorage",
+    });
+    const { accessToken, refreshToken, address, profile } = await this.login();
+    this.initAccountSettings(accessToken, refreshToken, address, profile);
+    const isApplicationSettingsStored = await sendToBackgroundViaRelay({
+      name: "storageGet",
+      body: {
+        id: "isApplicationSettingsStored",
+      },
+    }).then((data) => data.response);
+    if (!isApplicationSettingsStored) {
+      this.initApplicationSettings();
+    }
+    await sendToBackgroundViaRelay({
+      name: "reloadWindow",
+    });
+  }
+
   async login() {
     await sendToBackgroundViaRelay({
       name: "storageSet",
@@ -50,12 +71,16 @@ export class WalletHandler {
     });
     console.log("user is connected", isConnected);
     if (isConnected) return;
+    // add settings
     try {
       await this.provider.send("eth_requestAccounts", []);
-      const address = await this.setAddress();
+      const address = await this.getSignerAddress();
 
       const { profiles } = await sendToBackgroundViaRelay({
         name: "getUserProfiles",
+        body: {
+          address: address,
+        },
       });
       // add no profiles messaging
       console.log("profiles", profiles);
@@ -70,11 +95,10 @@ export class WalletHandler {
           address: address,
         },
       });
-      console.log("CHALLENGE_GET", challenge);
 
+      console.log("CHALLENGE_GET", challenge);
       const signature = await this.signChallenge(challenge);
       console.log("SIGNATURE_GET", signature);
-
       const { accessToken, refreshToken } = await sendToBackgroundViaRelay({
         name: "authenticateSignature",
         body: {
@@ -84,54 +108,105 @@ export class WalletHandler {
       });
       console.log("ACCESS_TOKEN", accessToken);
       console.log("REFRESH_TOKEN", refreshToken);
-      this.storeTokens(accessToken, refreshToken);
-      await sendToBackgroundViaRelay({
-        name: "storageSet",
-        body: {
-          id: "isLogin",
-          data: true,
-        },
-      });
-      await sendToBackgroundViaRelay({
-        name: "storageSet",
-        body: {
-          id: "userId",
-          data: profiles[0].id,
-        },
-      });
-      await sendToBackgroundViaRelay({
-        name: "storageSet",
-        body: {
-          id: "isDispatcher",
-          data: profiles[0].dispatcher.canUseRelay,
-        },
-      });
-      await sendToBackgroundViaRelay({
-        name: "reloadWindow",
-      });
+      return { accessToken, refreshToken, address, profile: profiles[0] };
     } catch (e) {
       return;
     }
   }
 
   async logout() {
-    this.storeTokens(null, null);
+    this.initAccountSettings(null, null, null, null);
+  }
+
+  private async initApplicationSettings() {
     await sendToBackgroundViaRelay({
       name: "storageSet",
       body: {
-        id: "address",
-        data: null,
+        id: "isEveryoneCanCollect",
+        data: true,
+        area: "local",
       },
     });
     await sendToBackgroundViaRelay({
       name: "storageSet",
       body: {
-        id: "isLogin",
-        data: false,
+        id: "isLoginOnLoad",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewReactionNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewFollowerNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewMirrorNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewCollectNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewCommentNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewMentionNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isNewReactionNotification",
+        data: true,
+        area: "local",
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isApplicationSettingsStored",
+        data: true,
+        area: "local",
       },
     });
   }
-  private async storeTokens(accessToken, refreshToken) {
+
+  private async initAccountSettings(
+    accessToken,
+    refreshToken,
+    address,
+    profile
+  ) {
     await sendToBackgroundViaRelay({
       name: "storageSet",
       body: {
@@ -146,19 +221,50 @@ export class WalletHandler {
         data: refreshToken,
       },
     });
+    // await sendToBackgroundViaRelay({
+    //   name: "storageSet",
+    //   body: {
+    //     id: "isDirectBridge",
+    //     data: profile.dispatcher.canUseRelay,
+    //   },
+    // });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isLogin",
+        data: true,
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "userId",
+        data: profile?.id,
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "address",
+        data: address,
+      },
+    });
+    await sendToBackgroundViaRelay({
+      name: "storageSet",
+      body: {
+        id: "isUseDispatcher",
+        data: profile?.dispatcher.canUseRelay
+          ? profile?.dispatcher.canUseRelay
+          : false,
+        area: "local",
+      },
+    });
   }
 
-  private async setAddress() {
+  private async getSignerAddress() {
     try {
       const signer = await this.getSigner();
       const signerAddress = await signer.getAddress();
-      await sendToBackgroundViaRelay({
-        name: "storageSet",
-        body: {
-          id: "address",
-          data: signerAddress,
-        },
-      });
       return signerAddress;
     } catch (e) {
       console.log(e);
@@ -183,7 +289,6 @@ export class WalletHandler {
 
   signChallenge = async (challenge) => {
     const signer = await this.provider.getSigner();
-    console.log(await signer.getAddress());
     try {
       const signature = signer.signMessage(ethers.utils.toUtf8Bytes(challenge));
       return signature;
