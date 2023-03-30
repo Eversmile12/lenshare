@@ -31,7 +31,7 @@ export const ProfileImage = ({
           />
         </div>
       </div>
-      {!isNotificationsSeen && (
+      {notifications && (
         <div
           onClick={() => {
             if (callback) {
@@ -39,10 +39,10 @@ export const ProfileImage = ({
               AppStorage.store("isNotificationsSeen", true);
             }
           }}
-          className={`animate-pulse top-0 right-0 -mr-2 -mt-1 absolute w-6 h-6 flex justify-center items-center text-[10px] bg-gradient-to-r  from-pink-500 to bg-purple-500 border-2 border-white dark:border-gray-800 rounded-full cursor-pointer text-white hover:bg-gradient-to-r  hover:from-pink-400 to hover:bg-purple-400 `}
-        >
-          {JSON.parse(notifications).length}
-        </div>
+          className={`${
+            !isNotificationsSeen && "animate-pulse"
+          } top-0 right-0 -mr-2 -mt-1 absolute w-6 h-6 flex justify-center items-center text-[10px] bg-gradient-to-r  from-pink-500 to bg-purple-500 border-2 border-white dark:border-gray-800 rounded-full cursor-pointer text-white hover:bg-gradient-to-r  hover:from-pink-400 to hover:bg-purple-400 `}
+        ></div>
       )}
     </div>
   );

@@ -6,7 +6,7 @@ export class AppStorage {
       area: area === "local" ? "local" : "sync",
     });
     try {
-      console.log("stored ", objectName, " as ", value);
+      // console.log("stored ", objectName, " as ", value);
       return storage.set(objectName, value);
     } catch (e) {
       console.log("ERR_STORE_SET:", e);

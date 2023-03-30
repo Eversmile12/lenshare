@@ -36,9 +36,6 @@ const handler: PlasmoMessaging.MessageHandler = async (_, res) => {
     currentRefreshToken
   );
 
-  console.log("ACCESS_TOKEN", accessToken);
-  console.log("REFRESH_TOKEN", refreshToken);
-
   if (!accessToken.length && !refreshToken.length) {
     res.send({
       accessToken: null,

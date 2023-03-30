@@ -68,9 +68,11 @@ export const ExtensionWindow = () => {
     if (!currentProfile && isLogin) {
       console.log("getting profile");
       getUserProfiles();
+      sendToBackground({
+        name: "verifyOrRefreshTokens",
+      });
     }
   }, [isLogin]);
-
 
   return (
     <PopupLayout width={"300"} height={"500"}>

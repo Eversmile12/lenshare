@@ -14,30 +14,48 @@ const handler: PlasmoMessaging.MessageHandler = async (
     "notifications",
     "local"
   );
+  console.log("Stored Notifications:");
+
+  console.log(JSON.parse(storedNotifications));
   const { notifications, cursor } = await lensClient.getNotifications(
     profileId,
     accessToken
   );
-  let difference;
-  if (storedNotifications) {
-    difference = notifications.filter(
+  console.log("New Notifications:");
+  console.log(notifications);
+
+  if (storedNotifications && notifications?.length) {
+    let difference = notifications.filter(
       ({ notificationId: id1 }) =>
         !JSON.parse(storedNotifications).some(
           ({ notificationId: id2 }) => id2 === id1
         )
     );
-    console.log(difference);
-  }
-  AppStorage.store("notifications", JSON.stringify(notifications), "local");
-  if (cursor) {
-    console.log("cursor found", cursor);
-    AppStorage.store("notificationsCursor", cursor, "local");
-  }
-  if (difference?.length) {
-    chrome.action.setBadgeText({ text: difference?.length.toString() });
 
+    if (difference?.length) {
+      AppStorage.store(
+        "notifications",
+        JSON.stringify([...difference, ...JSON.parse(storedNotifications)]),
+        "local"
+      );
+      console.log("Difference");
+      console.log(difference);
+      chrome.action.setBadgeText({ text: difference?.length.toString() });
+      AppStorage.store("isNotificationsSeen", false);
+    }
+  } else if (notifications?.length) {
+    AppStorage.store("notifications", JSON.stringify(notifications), "local");
     AppStorage.store("isNotificationsSeen", false);
   }
+
+  if (cursor) {
+    const storedCursor = AppStorage.retrieve("notificationsCursor");
+    if (storedCursor !== cursor) {
+      AppStorage.store("notificationsCursor", cursor, "local");
+    }
+  }
+
+  res.send({ message: "success" });
 };
 
 export default handler;

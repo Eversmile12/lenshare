@@ -59,19 +59,18 @@ export class LensClient {
 
   async verify(accessToken) {
     console.log("VERIFY ACCESS TOKEN", accessToken);
-    const response = await this.client.mutate<
-      VerifyQuery,
-      VerifyQueryVariables
-    >({
-      mutation: gql`
-        ${Q_VERIFY_REFRESH_TOKEN}
-      `,
-      variables: {
-        request: {
-          accessToken,
+    const response = await this.client.query<VerifyQuery, VerifyQueryVariables>(
+      {
+        query: gql`
+          ${Q_VERIFY_REFRESH_TOKEN}
+        `,
+        variables: {
+          request: {
+            accessToken,
+          },
         },
-      },
-    });
+      }
+    );
     return {
       verify: response.data.verify,
     };
@@ -101,11 +100,11 @@ export class LensClient {
     };
   }
   async refresh(refreshToken) {
-    const { data } = await this.client.query<
+    const { data } = await this.client.mutate<
       RefreshMutation,
       RefreshMutationVariables
     >({
-      query: gql`
+      mutation: gql`
         ${M_REFRESH_TOKENS}
       `,
       variables: {
@@ -122,7 +121,7 @@ export class LensClient {
   }
 
   async profiles(address) {
-    console.log(address);
+    console.log("getting user profile");
     const response = await this.client.query<
       ProfilesQuery,
       ProfilesQueryVariables
@@ -167,11 +166,11 @@ export class LensClient {
   }
 
   async getNotifications(profileId: string, accessToken, cursor?) {
-    const result = await this.client.mutate<
+    const result = await this.client.query<
       NotificationsQuery,
       NotificationsQueryVariables
     >({
-      mutation: gql`
+      query: gql`
         ${Q_NOTIFICATIONS}
       `,
       variables: {

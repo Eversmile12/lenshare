@@ -14,7 +14,6 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   }
   console.log("fetching profiles");
   const profiles = await lensClient.profiles(address);
-  console.log(profiles);
   res.send(profiles);
 };
 
